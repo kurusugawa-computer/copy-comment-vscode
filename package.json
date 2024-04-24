@@ -1,7 +1,7 @@
 {
-  "name": "hello",
-  "displayName": "hello",
-  "description": "hello",
+  "name": "copy-comment-vscode",
+  "displayName": "copy-comment-vscode",
+  "description": "copy-comment-vscode",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.88.0"
@@ -14,7 +14,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "hello.copy_without_comment_marks",
+        "command": "copy-comment-vscode.copy_without_comment_marks",
         "title": "コメント記号を除外してコピー"
       }
     ],
@@ -22,7 +22,7 @@
       "editor/context": [
         {
           "when": "editorFocus",
-          "command": "hello.copy_without_comment_marks",
+          "command": "copy-comment-vscode.copy_without_comment_marks",
           "group": "myGroup@1"
         }
       ]

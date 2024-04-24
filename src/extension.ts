@@ -5,16 +5,10 @@ import * as vscode from 'vscode';
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "hello" is now active!');
-
-  let userLanguage = vscode.env.language;
-  console.log(userLanguage);
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  let cmd = vscode.commands.registerCommand('hello.copy_without_comment_marks', () => {
+  let cmd = vscode.commands.registerCommand('copy-comment-vscode.copy_without_comment_marks', () => {
     const activeEditor = vscode.window.activeTextEditor;
     const doc = activeEditor && activeEditor.document;
     // 選択範囲を取得
