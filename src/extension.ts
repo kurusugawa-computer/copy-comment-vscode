@@ -9,17 +9,18 @@ export function activate(context: vscode.ExtensionContext) {
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
   let cmd = vscode.commands.registerCommand('copy-comment-vscode.copy_without_comment_marks', () => {
+    // Get text in selection
     const activeEditor = vscode.window.activeTextEditor;
     const doc = activeEditor && activeEditor.document;
-    // 選択範囲を取得
     const ref = activeEditor?.selection;
-    const str = doc?.getText(ref);
+    let str = doc?.getText(ref);
     if (str != undefined && str != '') {
-      // コピーしたテキストからコメント記号を取り除く
+      // Remove copy symbol
+
+      // Copy to clipboard
       vscode.env.clipboard.writeText(str);
-      vscode.window.showInformationMessage(str);
     } else {
-      vscode.window.showInformationMessage('コピー対象の文字列が空または選択されていません。');
+      vscode.window.showErrorMessage('No string selected to copy');
     }
   });
 

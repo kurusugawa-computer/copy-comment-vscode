@@ -15,7 +15,7 @@
     "commands": [
       {
         "command": "copy-comment-vscode.copy_without_comment_marks",
-        "title": "コメント記号を除外してコピー"
+        "title": "Copy without comment symbols"
       }
     ],
     "menus": {
