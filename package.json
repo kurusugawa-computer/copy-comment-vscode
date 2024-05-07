@@ -52,6 +52,8 @@
     "typescript-eslint": "^7.6.0"
   },
   "dependencies": {
-    "clipboard-copy": "^4.0.1"
+    "clipboard-copy": "^4.0.1",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.0.0"
   }
 }
