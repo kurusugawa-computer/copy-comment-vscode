@@ -30,7 +30,7 @@ const registry = new vscodeTextmate.Registry({
   loadGrammar: (scopeName: string) => {
     // https://github.com/textmate/
     const fileName = scopeName.split('.')[1] + '.xml';
-    return readFile(path.join(__dirname, '../resources/', fileName)).then((data) =>
+    return readFile(path.join(__dirname, '../resources/', fileName)).then((data: any) =>
       vscodeTextmate.parseRawGrammar(data.toString())
     );
   },
