@@ -48,7 +48,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  let cmd = vscode.commands.registerCommand('copy-comment-vscode.copy_without_comment_marks', () => {
+  let cmd = vscode.commands.registerCommand('copy-comment-vscode.copy_without_comment_symbols', () => {
     const activeEditor = vscode.window.activeTextEditor;
     const doc = activeEditor && activeEditor.document;
     const ref = activeEditor?.selection;
@@ -59,28 +59,29 @@ export async function activate(context: vscode.ExtensionContext) {
       const extension = languageIdMap.get(language);
       registry.loadGrammar('source.' + extension).then((grammar: any) => {
         let ruleStack = vscodeTextmate.INITIAL;
+        // loop every line
         for (let i = 0; i < selectedText.length; i++) {
           const line = selectedText[i];
           const lineTokens = grammar.tokenizeLine(line, ruleStack);
-          console.log(`\nTokenizing line: ${line}`);
+          let offset = 0;
+          // loop every token
           for (let j = 0; j < lineTokens.tokens.length; j++) {
             const token = lineTokens.tokens[j];
-            console.log(
-              ` - token from ${token.startIndex} to ${token.endIndex} ` +
-                `(${line.substring(token.startIndex, token.endIndex)}) ` +
-                `with scopes ${token.scopes.join(', ')}`
-            );
+            // detect and remove comment symbols
+            if (token.scopes.some((s: string) => s.includes('punctuation.definition.comment'))) {
+              selectedText[i] =
+                selectedText[i].substring(0, token.startIndex - offset) +
+                selectedText[i].substring(token.endIndex - offset);
+              offset += token.endIndex - token.startIndex;
+            }
           }
           ruleStack = lineTokens.ruleStack;
         }
+        // restruct text (add new-line character)
+        const restructedText = restructText(selectedText);
+        // copy to clipboard
+        vscode.env.clipboard.writeText(restructedText);
       });
-      // Remove comment marks
-
-      // Restruct Text (Add new-line character)
-      const restructedText = restructText(selectedText);
-
-      // Copy to clipboard
-      vscode.env.clipboard.writeText(restructedText);
     } else {
       vscode.window.showErrorMessage('Failed to get document');
     }

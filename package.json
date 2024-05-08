@@ -14,7 +14,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "copy-comment-vscode.copy_without_comment_marks",
+        "command": "copy-comment-vscode.copy_without_comment_symbols",
         "title": "Copy without comment symbols"
       }
     ],
@@ -22,7 +22,7 @@
       "editor/context": [
         {
           "when": "editorFocus",
-          "command": "copy-comment-vscode.copy_without_comment_marks",
+          "command": "copy-comment-vscode.copy_without_comment_symbols",
           "group": "myGroup@1"
         }
       ]
