@@ -711,7 +711,7 @@
 					<array>
 						<dict>
 							<key>include</key>
-							<string>source.js.regexp</string>
+							<string>source.javascript.regexp</string>
 						</dict>
 					</array>
 				</dict>
@@ -1609,7 +1609,7 @@
 						</dict>
 					</dict>
 					<key>contentName</key>
-					<string>source.js</string>
+					<string>source.javascript</string>
 					<key>end</key>
 					<string>(\})</string>
 					<key>endCaptures</key>
@@ -1622,7 +1622,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>source.js</string>
+							<string>source.javascript</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -1668,7 +1668,7 @@
 		</dict>
 	</dict>
 	<key>scopeName</key>
-	<string>source.js</string>
+	<string>source.javascript</string>
 	<key>uuid</key>
 	<string>93E017CC-6F27-11D9-90EB-000D93589AF6</string>
 </dict>

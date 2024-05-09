@@ -36,12 +36,6 @@ const registry = new vscodeTextmate.Registry({
   },
 });
 
-// Map to convert languageId to scopeName in grammar
-const languageIdMap = new Map<string, string>([
-  ['javascript', 'js'],
-  ['python', 'python'],
-]);
-
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
@@ -56,8 +50,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const language = doc?.languageId;
 
     if (selectedText != undefined && language != undefined) {
-      const extension = languageIdMap.get(language);
-      registry.loadGrammar('source.' + extension).then((grammar: any) => {
+      registry.loadGrammar('source.' + language).then((grammar: any) => {
         let ruleStack = vscodeTextmate.INITIAL;
         // loop every line
         for (let i = 0; i < selectedText.length; i++) {
@@ -68,7 +61,22 @@ export async function activate(context: vscode.ExtensionContext) {
           for (let j = 0; j < lineTokens.tokens.length; j++) {
             const token = lineTokens.tokens[j];
             // detect and remove comment symbols
-            if (token.scopes.some((s: string) => s.includes('punctuation.definition.comment'))) {
+            console.log(
+              ` - token from ${token.startIndex} to ${token.endIndex} ` +
+                `(${line.substring(token.startIndex, token.endIndex)}) ` +
+                `with scopes ${token.scopes.join(', ')}`
+            );
+            if (
+              token.scopes.some((s: string) => {
+                return s.includes('punctuation.definition.comment');
+              }) ||
+              (token.scopes.some((s: string) => {
+                return s.includes('punctuation');
+              }) &&
+                token.scopes.some((s: string) => {
+                  return s.includes('comment.block');
+                }))
+            ) {
               selectedText[i] =
                 selectedText[i].substring(0, token.startIndex - offset) +
                 selectedText[i].substring(token.endIndex - offset);
@@ -81,6 +89,7 @@ export async function activate(context: vscode.ExtensionContext) {
         const restructedText = restructText(selectedText);
         // copy to clipboard
         vscode.env.clipboard.writeText(restructedText);
+        vscode.window.showInformationMessage('Copied without comment symbols!');
       });
     } else {
       vscode.window.showErrorMessage('Failed to get document');
