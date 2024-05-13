@@ -1,6 +1,6 @@
 # Copy comment without comment symbols for Visual Studio Code
 
-## 🌟 feature
+## 🌟 Feature
 
 **copy-comment-vscode** makes it possible to copy text in code without comment symbols (e.g. `//`, `/*`, `#`).
 
