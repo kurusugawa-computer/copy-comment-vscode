@@ -1,19 +1,16 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as fs from 'fs';
-import * as path from 'path';
-
+import { readFile, readFileSync } from 'fs';
+import path from 'path';
 import * as vscode from 'vscode';
-import * as vscodeTextmate from 'vscode-textmate';
 import * as oniguruma from 'vscode-oniguruma';
+import * as vscodeTextmate from 'vscode-textmate';
 
-function readFile(path: string) {
+function readGrammarFile(filePath: string) {
   return new Promise((resolve, reject) => {
-    fs.readFile(path, (error: any, data: any) => (error ? reject(error) : resolve(data)));
+    readFile(filePath, (error: any, data: any) => (error ? reject(error) : resolve(data)));
   });
 }
 
-const wasmBin = fs.readFileSync(path.join(__dirname, '../node_modules/vscode-oniguruma/release/onig.wasm')).buffer;
+const wasmBin = readFileSync(path.join(__dirname, '../node_modules/vscode-oniguruma/release/onig.wasm')).buffer;
 const vscodeOnigurumaLib = oniguruma.loadWASM(wasmBin).then(() => {
   return {
     createOnigScanner(patterns: any) {
@@ -28,20 +25,14 @@ const vscodeOnigurumaLib = oniguruma.loadWASM(wasmBin).then(() => {
 const registry = new vscodeTextmate.Registry({
   onigLib: vscodeOnigurumaLib,
   loadGrammar: (scopeName: string) => {
-    // https://github.com/textmate/
     const fileName = scopeName.split('.')[1] + '.xml';
-    return readFile(path.join(__dirname, '../resources/', fileName)).then((data: any) =>
+    return readGrammarFile(path.join(__dirname, '../resources/', fileName)).then((data: any) =>
       vscodeTextmate.parseRawGrammar(data.toString())
     );
   },
 });
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
   let cmd = vscode.commands.registerCommand('copy-comment-vscode.copy_without_comment_symbols', () => {
     const activeEditor = vscode.window.activeTextEditor;
     const doc = activeEditor && activeEditor.document;
@@ -61,11 +52,6 @@ export async function activate(context: vscode.ExtensionContext) {
           for (let j = 0; j < lineTokens.tokens.length; j++) {
             const token = lineTokens.tokens[j];
             // detect and remove comment symbols
-            console.log(
-              ` - token from ${token.startIndex} to ${token.endIndex} ` +
-                `(${line.substring(token.startIndex, token.endIndex)}) ` +
-                `with scopes ${token.scopes.join(', ')}`
-            );
             if (
               token.scopes.some((s: string) => {
                 return s.includes('punctuation.definition.comment');
@@ -85,8 +71,10 @@ export async function activate(context: vscode.ExtensionContext) {
           }
           ruleStack = lineTokens.ruleStack;
         }
+
         // restruct text (add new-line character)
         const restructedText = restructText(selectedText);
+
         // copy to clipboard
         vscode.env.clipboard.writeText(restructedText);
         vscode.window.showInformationMessage('Copied without comment symbols!');
@@ -99,13 +87,10 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmd);
 }
 
-function restructText(str: string[]): string {
+function restructText(lines: string[]): string {
   let result = '';
-  for (let i = 0; i < str.length; i++) {
-    result += str[i] + '\n';
+  for (let i = 0; i < lines.length; i++) {
+    result += lines[i] + '\n';
   }
   return result;
 }
-
-// This method is called when your extension is deactivated
-export function deactivate() {}
