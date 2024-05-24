@@ -2,18 +2,16 @@
 
 ## 🌟 Feature
 
-**copy-comment-vscode** makes it possible to copy text in code without comment symbols (e.g. `//`, `/*`, `#`).
+The `copy-comment-vscode` extension enables you to copy text from code comments without including comment symbols (e.g., //, /\*, #).
 
-When working with vscode, you may come across long comments written in a certain language. In order to translate this using Google Translate etc., you will copy the comment and paste it to translation services, but the copied content contains comment symbols such as `/*`, `//` and `#`, so the translation doesn't work. This extention solve this problem.
+When working with vscode, you might encounter long comments written in a certain language. Often, to translate these comments using services like Google Translate, you need to copy and paste the text. However, the copied content contains comment symbols like `/*`, `//` and `#`. They can interfere with the translation process. This extension addresses this issue by allowing you to copy comments free of any comment symbols.
 
-There is already comment translation extensions but it has the risk of leaking code that should not be leaked to the outside.
+While there are other comment translation extensions available, they risk exposing sensitive code to external services. `copy-comment-vscode` provides a safer alternative by only copying the comment text.
 
 ## 📝 Usage
-1. Select text you want to translate.
-2. Click the right mouse button and select `Copy without comment symbols`.
-3. Copied to clipboard without comment symbols!
 
-
+1. Select the text in your code that you want to translate.
+2. Right-click and choose "Copy without comment symbols" from the context menu.
+3. The text will be copied to your clipboard without any comment symbols, ready for use.
 
 https://github.com/kurusugawa-computer/copy-comment-vscode/assets/67464161/ae39d0e7-ffc5-4288-8cdf-974cfc9b2946
-
