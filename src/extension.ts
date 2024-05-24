@@ -72,11 +72,11 @@ export async function activate(context: vscode.ExtensionContext) {
           ruleStack = lineTokens.ruleStack;
         }
 
-        // restruct text (add new-line character)
-        const restructedText = restructText(selectedText);
+        // restructure text (add new-line character)
+        const restructuredText = restructureText(selectedText);
 
         // copy to clipboard
-        vscode.env.clipboard.writeText(restructedText);
+        vscode.env.clipboard.writeText(restructuredText);
         vscode.window.showInformationMessage('Copied without comment symbols!');
       });
     } else {
@@ -87,7 +87,7 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmd);
 }
 
-function restructText(lines: string[]): string {
+function restructureText(lines: string[]): string {
   let result = '';
   for (let i = 0; i < lines.length; i++) {
     result += lines[i] + '\n';
