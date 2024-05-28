@@ -1,7 +1,7 @@
 {
   "version": "8.8.3",
   "language": "en",
-  "words": [],
+  "words": ["onig", "Onig"],
   "dictionaries": [
     "softwareTerms",
     "misc",
