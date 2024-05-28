@@ -43,45 +43,47 @@ export async function activate(context: vscode.ExtensionContext) {
     if (selectedText != undefined && language != undefined) {
       registry
         .loadGrammar('source.' + language)
-        .then((grammar: any) => {
+        .then((grammar: vscodeTextmate.IGrammar | null) => {
           let ruleStack = vscodeTextmate.INITIAL;
-          // loop every line
-          for (let i = 0; i < selectedText.length; i++) {
-            const line = selectedText[i];
-            const lineTokens = grammar.tokenizeLine(line, ruleStack);
-            let offset = 0;
-            // loop every token
-            for (let j = 0; j < lineTokens.tokens.length; j++) {
-              const token = lineTokens.tokens[j];
-              // detect and remove comment symbols
-              if (
-                token.scopes.some((s: string) => {
-                  return s.includes('punctuation.definition.comment');
-                }) ||
-                (token.scopes.some((s: string) => {
-                  return s.includes('punctuation');
-                }) &&
+          if (grammar != null) {
+            // loop every line
+            for (let i = 0; i < selectedText.length; i++) {
+              const line = selectedText[i];
+              const lineTokens = grammar.tokenizeLine(line, ruleStack);
+              let offset = 0;
+              // loop every token
+              for (let j = 0; j < lineTokens.tokens.length; j++) {
+                const token = lineTokens.tokens[j];
+                // detect and remove comment symbols
+                if (
                   token.scopes.some((s: string) => {
-                    return s.includes('comment.block');
-                  }))
-              ) {
-                selectedText[i] =
-                  selectedText[i].substring(0, token.startIndex - offset) +
-                  selectedText[i].substring(token.endIndex - offset);
-                offset += token.endIndex - token.startIndex;
+                    return s.includes('punctuation.definition.comment');
+                  }) ||
+                  (token.scopes.some((s: string) => {
+                    return s.includes('punctuation');
+                  }) &&
+                    token.scopes.some((s: string) => {
+                      return s.includes('comment.block');
+                    }))
+                ) {
+                  selectedText[i] =
+                    selectedText[i].substring(0, token.startIndex - offset) +
+                    selectedText[i].substring(token.endIndex - offset);
+                  offset += token.endIndex - token.startIndex;
+                }
               }
+              ruleStack = lineTokens.ruleStack;
             }
-            ruleStack = lineTokens.ruleStack;
+
+            // restructure text (add new-line character)
+            const restructuredText = restructureText(selectedText);
+
+            // copy to clipboard
+            vscode.env.clipboard.writeText(restructuredText);
+            vscode.window.showInformationMessage('Copied without comment symbols!');
           }
-
-          // restructure text (add new-line character)
-          const restructuredText = restructureText(selectedText);
-
-          // copy to clipboard
-          vscode.env.clipboard.writeText(restructuredText);
-          vscode.window.showInformationMessage('Copied without comment symbols!');
         })
-        .catch((e) => vscode.window.showErrorMessage('This programming language is not supported.'));
+        .catch(() => vscode.window.showErrorMessage('This programming language is not supported.'));
     } else {
       vscode.window.showErrorMessage('Failed to get document');
     }
