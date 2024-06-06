@@ -1,36 +1,101 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+import { readFile, readFileSync } from 'fs';
+import path from 'path';
 import * as vscode from 'vscode';
+import * as oniguruma from 'vscode-oniguruma';
+import * as vscodeTextmate from 'vscode-textmate';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "hello" is now active!');
+function readGrammarFile(filePath: string) {
+  return new Promise((resolve, reject) => {
+    readFile(filePath, (error: any, data: any) => (error ? reject(error) : resolve(data)));
+  });
+}
 
-  let userLanguage = vscode.env.language;
-  console.log(userLanguage);
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
-  let cmd = vscode.commands.registerCommand('hello.copy_without_comment_marks', () => {
+const wasmBin = readFileSync(path.join(__dirname, '../node_modules/vscode-oniguruma/release/onig.wasm')).buffer;
+const vscodeOnigurumaLib = oniguruma.loadWASM(wasmBin).then(() => {
+  return {
+    createOnigScanner(patterns: any) {
+      return new oniguruma.OnigScanner(patterns);
+    },
+    createOnigString(s: any) {
+      return new oniguruma.OnigString(s);
+    },
+  };
+});
+
+const registry = new vscodeTextmate.Registry({
+  onigLib: vscodeOnigurumaLib,
+  loadGrammar: (scopeName: string) => {
+    const fileName = scopeName.split('.')[1] + '.xml';
+    return readGrammarFile(path.join(__dirname, '../resources/', fileName)).then((data: any) =>
+      vscodeTextmate.parseRawGrammar(data.toString())
+    );
+  },
+});
+
+export async function activate(context: vscode.ExtensionContext) {
+  let cmd = vscode.commands.registerCommand('copy-comment-vscode.copy_without_comment_symbols', () => {
     const activeEditor = vscode.window.activeTextEditor;
     const doc = activeEditor && activeEditor.document;
-    // 選択範囲を取得
     const ref = activeEditor?.selection;
-    const str = doc?.getText(ref);
-    if (str != undefined && str != '') {
-      // コピーしたテキストからコメント記号を取り除く
-      vscode.env.clipboard.writeText(str);
-      vscode.window.showInformationMessage(str);
+    const selectedText = doc?.getText(ref).split('\n');
+    const language = doc?.languageId;
+
+    if (selectedText != undefined && language != undefined) {
+      registry
+        .loadGrammar('source.' + language)
+        .then((grammar: vscodeTextmate.IGrammar | null) => {
+          let ruleStack = vscodeTextmate.INITIAL;
+          if (grammar != null) {
+            // loop every line
+            for (let i = 0; i < selectedText.length; i++) {
+              const line = selectedText[i];
+              const lineTokens = grammar.tokenizeLine(line, ruleStack);
+              let offset = 0;
+              // loop every token
+              for (let j = 0; j < lineTokens.tokens.length; j++) {
+                const token = lineTokens.tokens[j];
+                // detect and remove comment symbols
+                if (
+                  token.scopes.some((s: string) => {
+                    return s.includes('punctuation.definition.comment');
+                  }) ||
+                  (token.scopes.some((s: string) => {
+                    return s.includes('punctuation');
+                  }) &&
+                    token.scopes.some((s: string) => {
+                      return s.includes('comment.block');
+                    }))
+                ) {
+                  selectedText[i] =
+                    selectedText[i].substring(0, token.startIndex - offset) +
+                    selectedText[i].substring(token.endIndex - offset);
+                  offset += token.endIndex - token.startIndex;
+                }
+              }
+              ruleStack = lineTokens.ruleStack;
+            }
+
+            // restructure text (add new-line character)
+            const restructuredText = restructureText(selectedText);
+
+            // copy to clipboard
+            vscode.env.clipboard.writeText(restructuredText);
+            vscode.window.showInformationMessage('Copied without comment symbols!');
+          }
+        })
+        .catch(() => vscode.window.showErrorMessage('This programming language is not supported.'));
     } else {
-      vscode.window.showInformationMessage('コピー対象の文字列が空または選択されていません。');
+      vscode.window.showErrorMessage('Failed to get document');
     }
   });
 
   context.subscriptions.push(cmd);
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+function restructureText(lines: string[]): string {
+  let result = '';
+  for (let i = 0; i < lines.length; i++) {
+    result += lines[i] + '\n';
+  }
+  return result;
+}

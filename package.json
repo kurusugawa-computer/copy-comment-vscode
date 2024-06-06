@@ -1,7 +1,7 @@
 {
-  "name": "hello",
-  "displayName": "hello",
-  "description": "hello",
+  "name": "copy-comment-vscode",
+  "displayName": "copy-comment-vscode",
+  "description": "copy-comment-vscode",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.88.0"
@@ -14,15 +14,15 @@
   "contributes": {
     "commands": [
       {
-        "command": "hello.copy_without_comment_marks",
-        "title": "コメント記号を除外してコピー"
+        "command": "copy-comment-vscode.copy_without_comment_symbols",
+        "title": "Copy without comment symbols"
       }
     ],
     "menus": {
       "editor/context": [
         {
           "when": "editorFocus",
-          "command": "hello.copy_without_comment_marks",
+          "command": "copy-comment-vscode.copy_without_comment_symbols",
           "group": "myGroup@1"
         }
       ]
@@ -52,6 +52,9 @@
     "typescript-eslint": "^7.6.0"
   },
   "dependencies": {
-    "clipboard-copy": "^4.0.1"
+    "clipboard-copy": "^4.0.1",
+    "cspell": "^8.8.3",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.0.0"
   }
 }

@@ -1,0 +1,29 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": ["onig", "Onig"],
+  "dictionaries": [
+    "softwareTerms",
+    "misc",
+    "companies",
+    "typescript",
+    "node",
+    "html",
+    "css",
+    "fonts",
+    "filetypes",
+    "npm"
+  ],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/.vscode/**",
+    "**/.next/**",
+    "**/__generated__/**",
+    "**/out/**",
+    "**/package.json",
+    "**/resources/**",
+    "**/yarn-error.log",
+    "**/yarn.lock"
+  ]
+}
